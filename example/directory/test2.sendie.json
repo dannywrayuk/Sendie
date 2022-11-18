@@ -1,0 +1,11 @@
+{
+  "name": "Placeholder Test 2",
+  "method": "GET",
+  "address": "https://jsonplaceholder.typicode.com/todos/1",
+  "headers": {
+    "ContentType": "application/json"
+  },
+  "body": {
+    "hello": "world"
+  }
+}
