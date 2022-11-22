@@ -1,8 +1,12 @@
 import * as vscode from "vscode";
-import { constructTree } from "./constructTree";
+import { constructRequestTree } from "./constructRequestTree";
 
 export class RequestTreeProvider implements vscode.TreeDataProvider<any> {
-  constructor(private workspaceRoot: string) {}
+  private requestTree: any = [];
+  constructor(private workspaceRoot: string) {
+    this.requestTree = constructRequestTree(this.workspaceRoot);
+    console.log(this.requestTree);
+  }
 
   getTreeItem(element: any): vscode.TreeItem {
     return element;
@@ -14,30 +18,12 @@ export class RequestTreeProvider implements vscode.TreeDataProvider<any> {
       return Promise.resolve([]);
     }
 
-    let fileTree = [];
     if (!element) {
-      fileTree = constructTree(this.workspaceRoot);
-    } else if (element.children) {
-      fileTree = element.children;
+      return Promise.resolve(this.requestTree);
     }
-
-    return Promise.resolve(
-      fileTree.map((x: any) => {
-        if (x.children) {
-          return {
-            label: x.id,
-            path: x.path,
-            collapsibleState: true,
-            contextValue: "folder",
-            children: x.children,
-          };
-        } else {
-          return {
-            label: x.id,
-            path: x.path,
-          };
-        }
-      })
-    );
+    if (element.children) {
+      return Promise.resolve(element.children);
+    }
+    return Promise.resolve([]);
   }
 }

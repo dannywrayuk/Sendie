@@ -55,6 +55,7 @@
     "test:w": "jest --watch"
   },
   "devDependencies": {
+    "@types/glob": "^8.0.0",
     "@types/jest": "^29.2.2",
     "@types/vscode": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
@@ -68,6 +69,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "glob": "^8.0.3",
     "node-fetch": "^3.3.0"
   }
 }

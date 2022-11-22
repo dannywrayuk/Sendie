@@ -1,0 +1,47 @@
+[
+  {
+    "name": "sendie_directory_collection_2",
+    "type": "collection",
+    "children": [
+      {
+        "type": "request",
+        "category": "test",
+        "name": "sendie_directory_collection_1",
+        "method": "GET",
+        "address": "https://jsonplaceholder.typicode.com/todos/1",
+        "headers": {
+          "ContentType": "application/json"
+        },
+        "body": {
+          "hello": "world"
+        }
+      },
+      {
+        "type": "request",
+        "category": "test",
+        "name": "sendie_directory_collection_2",
+        "method": "GET",
+        "address": "https://jsonplaceholder.typicode.com/todos/1",
+        "headers": {
+          "ContentType": "application/json"
+        },
+        "body": {
+          "hello": "world"
+        }
+      }
+    ]
+  },
+  {
+    "type": "request",
+    "category": "test",
+    "name": "sendie_directory_request_2",
+    "method": "GET",
+    "address": "https://jsonplaceholder.typicode.com/todos/1",
+    "headers": {
+      "ContentType": "application/json"
+    },
+    "body": {
+      "hello": "world"
+    }
+  }
+]

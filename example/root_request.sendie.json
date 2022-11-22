@@ -1,6 +1,7 @@
 {
   "type": "request",
-  "name": "Placeholder Test",
+  "category": "test",
+  "name": "root_request",
   "method": "GET",
   "address": "https://jsonplaceholder.typicode.com/todos/1",
   "headers": {

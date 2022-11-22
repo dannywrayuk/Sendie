@@ -1,0 +1,28 @@
+[
+  {
+    "type": "request",
+    "category": "test",
+    "name": "root_request_array_1",
+    "method": "GET",
+    "address": "https://jsonplaceholder.typicode.com/todos/1",
+    "headers": {
+      "ContentType": "application/json"
+    },
+    "body": {
+      "hello": "world"
+    }
+  },
+  {
+    "type": "request",
+    "category": "test",
+    "name": "root_request_array_2",
+    "method": "GET",
+    "address": "https://jsonplaceholder.typicode.com/todos/1",
+    "headers": {
+      "ContentType": "application/json"
+    },
+    "body": {
+      "hello": "world"
+    }
+  }
+]
