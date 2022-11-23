@@ -1,6 +1,6 @@
 import { constructRequestTree } from "./constructRequestTree";
 
 test("test", () => {
-  const x = constructRequestTree("");
-  console.log(x);
+  const x = constructRequestTree("example");
+  console.log(JSON.stringify(x, null, 2));
 });

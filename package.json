@@ -19,7 +19,7 @@
       {
         "command": "sendie.sendRequest",
         "title": "Send Request",
-        "icon": "$(extensions-refresh)"
+        "icon": "$(run)"
       }
     ],
     "views": {
