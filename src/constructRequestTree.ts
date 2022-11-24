@@ -11,36 +11,42 @@ const findRequestFiles = (root: string = "") => {
     .map((file) => path.relative(root, file));
 };
 
-const constructRequest = ({ data, path, index }: any): any => {
+const constructRequest = ({ data, path, indexArray }: any): any => {
   return {
     label: data.name,
     path,
-    index,
+    indexArray,
     iconPath: new vscode.ThemeIcon("mail"),
   };
 };
 
-const constructCollection = ({ data, path, index }: any): any => {
+const constructCollection = ({ data, path, indexArray }: any): any => {
   return {
     label: data.name,
-    path,
-    index,
     collapsibleState: true,
     contextValue: "folder",
-    children: constructItem({ data: data.children, path }),
+    children: constructItem({ data: data.children, path, indexArray }),
   };
 };
 
-const constructItem = ({ data, index, path }: any): any[] => {
+const constructItem = ({ data, indexArray = [], path }: any): any[] => {
   if (Array.isArray(data)) {
-    return data.map((x, index) => constructItem({ data: x, index, path }));
+    return data.map((x, index) => {
+      const childIndex = Array.from(indexArray);
+      childIndex.push(index);
+      return constructItem({
+        data: x,
+        indexArray: childIndex,
+        path,
+      });
+    });
   }
 
   switch (data.type) {
     case "request":
-      return constructRequest({ data, path });
+      return constructRequest({ data, path, indexArray });
     case "collection":
-      return constructCollection({ data, path });
+      return constructCollection({ data, path, indexArray });
     default:
       console.log("Unknown Type");
       return [];

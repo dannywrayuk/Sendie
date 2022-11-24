@@ -7,6 +7,16 @@ import fetch from "node-fetch";
 import { RequestTreeProvider } from "./RequestTreeProvider";
 import { VirtualDocumentProvider } from "./virtualDocumentProvider";
 
+const getFromIndex = (data: any, indexArray: any[]) =>
+  indexArray.reduce((acc, index) => {
+    if (Array.isArray(acc)) {
+      return acc[index];
+    }
+    if (acc.children) {
+      return acc.children[index];
+    }
+  }, data);
+
 export function activate(context: vscode.ExtensionContext) {
   const rootPath =
     vscode.workspace.workspaceFolders &&
@@ -28,13 +38,16 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable = vscode.commands.registerCommand(
     "sendie.sendRequest",
     async (args) => {
-      const x = JSON.parse(fs.readFileSync(args.path).toString());
+      const collectionData = JSON.parse(fs.readFileSync(args.path).toString());
+      const requestData = getFromIndex(collectionData, args.indexArray || []);
+      console.log(requestData);
+
       const time = new Date();
-      const title = `${x.name}: ${time.toLocaleTimeString()}, ${time
+      const title = `${requestData.name}: ${time.toLocaleTimeString()}, ${time
         .toLocaleDateString()
         .replace(/\//g, ".")}`;
       console.log(title);
-      const res = await fetch(x.address);
+      const res = await fetch(requestData.address);
       console.log(res);
 
       virtualDocumentProvider.setContent(await res.text());
