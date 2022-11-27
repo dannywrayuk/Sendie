@@ -1,25 +1,30 @@
 import * as vscode from "vscode";
 import { constructRequestTree } from "./constructRequestTree";
 
-export class RequestTreeProvider implements vscode.TreeDataProvider<any> {
-  private requestTree: any = [];
+export interface RequestTreeItem extends vscode.TreeItem {
+  children?: RequestTreeItem[];
+  path?: string;
+  indexArray?: number[];
+}
+
+export class RequestTreeProvider
+  implements vscode.TreeDataProvider<RequestTreeItem>
+{
+  private requestTreeItems: RequestTreeItem[] = [];
   constructor(private workspaceRoot: string) {
-    this.requestTree = constructRequestTree(this.workspaceRoot);
-    console.log(this.requestTree);
+    this.requestTreeItems = constructRequestTree(this.workspaceRoot);
   }
 
-  getTreeItem(element: any): vscode.TreeItem {
+  getTreeItem(element: RequestTreeItem): RequestTreeItem {
     return element;
   }
 
-  getChildren(element?: any): Thenable<any[]> {
+  getChildren(element?: RequestTreeItem): Thenable<RequestTreeItem[]> {
     if (!this.workspaceRoot) {
-      vscode.window.showInformationMessage("No dependency in empty workspace");
       return Promise.resolve([]);
     }
-
     if (!element) {
-      return Promise.resolve(this.requestTree);
+      return Promise.resolve(this.requestTreeItems);
     }
     if (element.children) {
       return Promise.resolve(element.children);

@@ -2,6 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 import * as glob from "glob";
 import * as vscode from "vscode";
+import { RequestTreeItem } from "./RequestTreeProvider";
+import { Collection, Request, RequestItem } from "./sendRequest";
 
 const ignore = ["node_modules/**", "dist/**"];
 
@@ -11,25 +13,45 @@ const findRequestFiles = (root: string = "") => {
     .map((file) => path.relative(root, file));
 };
 
-const constructRequest = ({ data, path, indexArray }: any): any => {
-  return {
-    label: data.name,
+interface constructorProps<T> {
+  data: T;
+  path: string;
+  indexArray?: number[];
+}
+
+const constructRequest = ({
+  data,
+  path,
+  indexArray,
+}: constructorProps<Request>): RequestTreeItem => ({
+  label: data.name,
+  path,
+  indexArray,
+  iconPath: new vscode.ThemeIcon("mail"),
+});
+
+const constructCollection = ({
+  data,
+  path,
+  indexArray,
+}: constructorProps<Collection>): RequestTreeItem => ({
+  label: data.name,
+  collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+  contextValue: "folder",
+  children: constructItem({
+    data: data.children,
     path,
     indexArray,
-    iconPath: new vscode.ThemeIcon("mail"),
-  };
-};
+  }) as RequestTreeItem[],
+});
 
-const constructCollection = ({ data, path, indexArray }: any): any => {
-  return {
-    label: data.name,
-    collapsibleState: true,
-    contextValue: "folder",
-    children: constructItem({ data: data.children, path, indexArray }),
-  };
-};
-
-const constructItem = ({ data, indexArray = [], path }: any): any[] => {
+const constructItem = ({
+  data,
+  indexArray = [],
+  path,
+}: constructorProps<RequestItem[] | RequestItem>):
+  | RequestTreeItem
+  | RequestTreeItem[] => {
   if (Array.isArray(data)) {
     return data.map((x, index) => {
       const childIndex = Array.from(indexArray);
@@ -38,10 +60,9 @@ const constructItem = ({ data, indexArray = [], path }: any): any[] => {
         data: x,
         indexArray: childIndex,
         path,
-      });
+      }) as RequestTreeItem;
     });
   }
-
   switch (data.type) {
     case "request":
       return constructRequest({ data, path, indexArray });
@@ -53,67 +74,77 @@ const constructItem = ({ data, indexArray = [], path }: any): any[] => {
   }
 };
 
-const parseRequestFile = (requestFile: any): any => {
-  const data = fs.readFileSync(requestFile).toString();
-  if (path.extname(requestFile) === ".json") {
+const parseRequestFile = (
+  requestFilePath: string
+): RequestTreeItem | RequestTreeItem[] => {
+  const data = fs.readFileSync(requestFilePath).toString();
+  if (path.extname(requestFilePath) === ".json") {
     const parsedData = JSON.parse(data);
-    return constructItem({ data: parsedData, path: requestFile });
+    return constructItem({ data: parsedData, path: requestFilePath });
   }
+  return [];
 };
 
-const splitDirectory = (dir: string) => {
-  const dirArray = dir.split(path.sep);
-  if (dirArray[0] === "sendie") {
-    return dirArray.slice(1);
-  }
-  if (dirArray.length > 2) {
-    return dirArray.slice(-2);
-  }
-  return dirArray;
+const splitFilePath = (filePath: string) => {
+  const filePathArray = filePath.split(path.sep);
+  if (filePathArray[0] === "sendie") return filePathArray.slice(1);
+  if (filePathArray.length > 2) return filePathArray.slice(-2);
+  return filePathArray;
 };
 
-const sortResults = (results: any[]) => {
+const sortResults = (results: RequestTreeItem[]) => {
   results.forEach(
-    (result: any) => result?.children && sortResults(result.children)
+    (result: RequestTreeItem) =>
+      result?.children && sortResults(result.children)
   );
-  results.sort((a, b) => {
+  results.sort((a: RequestTreeItem, b: RequestTreeItem) => {
     if (a.children && !b.children) return -1;
     if (!a.children && b.children) return 1;
-    return a.label - b.label;
+    return (a.label as any) - (b.label as any);
   });
   return results;
 };
 
-export const constructRequestTree = (root: string): any => {
-  let result: any = [];
-  let level = { result };
-  const requestFiles = findRequestFiles(root);
-  console.log(requestFiles);
+interface LevelType {
+  result: RequestTreeItem[];
+  [name: string]: LevelType | RequestTreeItem[];
+}
 
-  requestFiles.forEach((dir: any) => {
-    splitDirectory(dir).reduce((r: any, name: any) => {
-      if (!r[name]) {
-        r[name] = { result: [] };
-        if (name === path.basename(dir)) {
-          const parsedRequests = parseRequestFile(path.join(root, dir));
-          if (Array.isArray(parsedRequests)) {
-            parsedRequests.forEach((x: any): any => {
-              r.result.push(x);
-            });
+export const constructRequestTree = (root: string): RequestTreeItem[] => {
+  const requestFilePaths: string[] = findRequestFiles(root);
+  // This was stolen from StackOverflow and converts filePath arrays to fileTree like objects.
+  // It wasn't written with ts in mind, so pls ignore the gross types.
+  let result: RequestTreeItem[] = [];
+  let level: LevelType = { result };
+  requestFilePaths.forEach((requestFilePath: string) => {
+    splitFilePath(requestFilePath).reduce(
+      (r: LevelType, name: string): LevelType => {
+        if (!r[name]) {
+          r[name] = { result: [] };
+          if (name === path.basename(requestFilePath)) {
+            const parsedRequests = parseRequestFile(
+              path.join(root, requestFilePath)
+            );
+            if (Array.isArray(parsedRequests)) {
+              parsedRequests.forEach((x: any): any => {
+                r.result.push(x);
+              });
+            } else {
+              r.result.push(parsedRequests);
+            }
           } else {
-            r.result.push(parsedRequests);
+            r.result.push({
+              label: name,
+              collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+              contextValue: "folder",
+              children: (r[name] as LevelType).result,
+            });
           }
-        } else {
-          r.result.push({
-            label: name,
-            collapsibleState: true,
-            contextValue: "folder",
-            children: r[name].result,
-          });
         }
-      }
-      return r[name];
-    }, level);
+        return r[name] as LevelType;
+      },
+      level
+    );
   });
   return sortResults(result);
 };
