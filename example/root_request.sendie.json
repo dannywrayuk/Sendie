@@ -2,12 +2,14 @@
   "type": "request",
   "category": "test",
   "name": "root_request",
-  "method": "GET",
-  "address": "https://jsonplaceholder.typicode.com/todos/1",
+  "method": "POST",
+  "address": "https://jsonplaceholder.typicode.com/posts",
   "headers": {
-    "ContentType": "application/json"
+    "Content-type": "application/json; charset=UTF-8"
   },
   "body": {
-    "hello": "world"
+    "title": "Hello",
+    "body": "sendie",
+    "userId": 1
   }
 }

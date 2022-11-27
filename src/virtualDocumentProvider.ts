@@ -8,7 +8,10 @@ export class VirtualDocumentProvider
     return this.content;
   }
 
-  setContent(content: string): void {
+  async openDocument(content: string, title: string) {
     this.content = content;
+    let uri = vscode.Uri.parse("sendie:" + title);
+    let doc = await vscode.workspace.openTextDocument(uri);
+    await vscode.window.showTextDocument(doc, { preview: false });
   }
 }
