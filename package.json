@@ -45,7 +45,13 @@
           "group": "inline"
         }
       ]
-    }
+    },
+    "jsonValidation": [
+      {
+        "fileMatch": "*.sendie.json",
+        "url": "./sendieJsonSchema.json"
+      }
+    ]
   },
   "scripts": {
     "build": "webpack",

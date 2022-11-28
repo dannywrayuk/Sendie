@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "The Sendie document schema",
+  "oneOf": [
+    {
+      "$ref": "#/definitions/request"
+    },
+    {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/request"
+      }
+    }
+  ],
+  "definitions": {
+    "request": {
+      "description": "A Sendie Item",
+      "type": "object",
+      "properties": {
+        "type": {
+          "description": "The Type of Sendie Item",
+          "type": "string",
+          "enum": ["request", "collection"]
+        },
+        "name": {
+          "description": "A name for this Sendie Item",
+          "type": "string"
+        },
+        "address": {
+          "description": "The address to send this request",
+          "type": "string"
+        },
+        "method": {
+          "description": "The HTTP method to use",
+          "type": "string",
+          "enum": [
+            "DELETE",
+            "GET",
+            "HEAD",
+            "OPTIONS",
+            "POST",
+            "PUT",
+            "delete",
+            "get",
+            "head",
+            "options",
+            "post",
+            "put"
+          ]
+        },
+        "headers": {
+          "type": "object",
+          "description": "HTTP headers to be sent along with this request",
+          "properties": {},
+          "additionalProperties": true
+        },
+        "body": {
+          "description": "The request body",
+          "type": ["string", "object"]
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
