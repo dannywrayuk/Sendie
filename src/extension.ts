@@ -26,7 +26,10 @@ export function activate(context: vscode.ExtensionContext) {
 
   let disposable = vscode.commands.registerCommand(
     "sendie.sendRequest",
-    sendRequest(virtualDocumentProvider)
+    async (args) => {
+      const response = await sendRequest(args);
+      virtualDocumentProvider.openDocument(response.document, response.title);
+    }
   );
 
   context.subscriptions.push(disposable);

@@ -58,13 +58,16 @@ const createResponseDocument = async (responseData: Response) => {
   return await responseData.text();
 };
 
-export const sendRequest =
-  // Not sure how else to get the vdp into the function, might have to revisit this.
-  (virtualDocumentProvider: any) => async (args: any) => {
-    const requestData = getRequestData(args.path, args.indexArray);
-    const responseData = await getResponseData(requestData);
-    const responseDocument = await createResponseDocument(responseData);
-
-    const title = createTitle(requestData);
-    virtualDocumentProvider.openDocument(responseDocument, title);
-  };
+export const sendRequest = async ({
+  path,
+  indexArray,
+}: {
+  path: string;
+  indexArray: number[];
+}) => {
+  const requestData = getRequestData(path, indexArray);
+  const title = createTitle(requestData);
+  const responseData = await getResponseData(requestData);
+  const responseDocument = await createResponseDocument(responseData);
+  return { document: responseDocument, title };
+};
