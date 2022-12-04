@@ -3,29 +3,59 @@
   "title": "The Sendie document schema",
   "oneOf": [
     {
-      "$ref": "#/definitions/request"
+      "$ref": "#/definitions/item"
     },
     {
       "type": "array",
       "items": {
-        "$ref": "#/definitions/request"
+        "$ref": "#/definitions/item"
       }
     }
   ],
   "definitions": {
-    "request": {
+    "item": {
       "description": "A Sendie Item",
       "type": "object",
       "properties": {
-        "type": {
-          "description": "The Type of Sendie Item",
-          "type": "string",
-          "enum": ["request", "collection"]
-        },
         "name": {
           "description": "A name for this Sendie Item",
           "type": "string"
         },
+        "type": {
+          "description": "The Type of Sendie Item",
+          "type": "string",
+          "enum": ["request", "collection"]
+        }
+      },
+      "required": ["name", "type"],
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "request" }
+            }
+          },
+          "then": {
+            "$ref": "#/definitions/request"
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": { "const": "collection" }
+            }
+          },
+          "then": {
+            "$ref": "#/definitions/collection"
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "request": {
+      "description": "A Sendie Request",
+      "type": "object",
+      "properties": {
         "address": {
           "description": "The address to send this request",
           "type": "string"
@@ -58,8 +88,19 @@
           "description": "The request body",
           "type": ["string", "object"]
         }
-      },
-      "additionalProperties": false
+      }
+    },
+    "collection": {
+      "description": "A Sendie Collection",
+      "type": "object",
+      "properties": {
+        "children": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/item"
+          }
+        }
+      }
     }
   }
 }
