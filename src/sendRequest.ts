@@ -44,6 +44,9 @@ const getResponseData = async (requestData: Request) => {
     headers: requestData.headers,
     body: JSON.stringify(requestData.body),
   };
+  if (options.method === "GET") {
+    options.body = undefined;
+  }
   return await fetch(requestData.address, options);
 };
 
