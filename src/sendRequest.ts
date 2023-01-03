@@ -1,5 +1,6 @@
 import * as fs from "fs";
 import fetch, { HeadersInit, RequestInit, Response } from "node-fetch";
+import { createResponseDocument } from "./createResponseDocument";
 
 export interface Request {
   type: "request";
@@ -57,10 +58,6 @@ const createTitle = (requestData: Request) => {
     .replace(/\//g, ".")}`;
 };
 
-const createResponseDocument = async (responseData: Response) => {
-  return await responseData.text();
-};
-
 export const sendRequest = async ({
   path,
   indexArray,
@@ -71,6 +68,10 @@ export const sendRequest = async ({
   const requestData = getRequestData(path, indexArray);
   const title = createTitle(requestData);
   const responseData = await getResponseData(requestData);
-  const responseDocument = await createResponseDocument(responseData);
+  const responseDocument = await createResponseDocument(
+    title,
+    requestData,
+    responseData
+  );
   return { document: responseDocument, title };
 };
