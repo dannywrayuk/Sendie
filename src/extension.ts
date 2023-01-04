@@ -2,9 +2,10 @@
 
 import * as vscode from "vscode";
 
-import { RequestTreeProvider } from "./RequestTreeProvider";
+import { TreeProvider } from "./TreeProvider";
 import { VirtualDocumentProvider } from "./virtualDocumentProvider";
 import { sendRequest } from "./sendRequest";
+import { constructRequestTree } from "./constructRequestTree";
 
 export function activate(context: vscode.ExtensionContext) {
   const rootPath =
@@ -21,7 +22,12 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.window.registerTreeDataProvider(
     "requests",
-    new RequestTreeProvider(rootPath)
+    new TreeProvider(rootPath, constructRequestTree)
+  );
+
+  vscode.window.registerTreeDataProvider(
+    "context",
+    new TreeProvider(rootPath, constructRequestTree)
   );
 
   let disposable = vscode.commands.registerCommand(

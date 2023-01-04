@@ -53,7 +53,7 @@ const getResponseData = async (requestData: Request) => {
 
 const createTitle = (requestData: Request) => {
   const time = new Date();
-  return `${requestData.name}: ${time.toLocaleTimeString()}, ${time
+  return `${requestData.name} ${time.toLocaleTimeString()}, ${time
     .toLocaleDateString()
     .replace(/\//g, ".")}`;
 };

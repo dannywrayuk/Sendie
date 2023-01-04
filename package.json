@@ -22,11 +22,24 @@
         "icon": "$(run)"
       }
     ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sendie",
+          "title": "Sendie",
+          "icon": "$(mail)"
+        }
+      ]
+    },
     "views": {
-      "explorer": [
+      "sendie": [
         {
           "id": "requests",
           "name": "Requests"
+        },
+        {
+          "id": "context",
+          "name": "Context"
         }
       ]
     },

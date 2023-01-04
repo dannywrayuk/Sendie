@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as glob from "glob";
 import * as vscode from "vscode";
-import { RequestTreeItem } from "./RequestTreeProvider";
+import { SendieTreeItem } from "./TreeProvider";
 import { Collection, Request, RequestItem } from "./sendRequest";
 
 const ignore = ["node_modules/**", "dist/**"];
@@ -23,7 +23,7 @@ const constructRequest = ({
   data,
   path,
   indexArray,
-}: constructorProps<Request>): RequestTreeItem => ({
+}: constructorProps<Request>): SendieTreeItem => ({
   label: data.name,
   path,
   indexArray,
@@ -34,7 +34,7 @@ const constructCollection = ({
   data,
   path,
   indexArray,
-}: constructorProps<Collection>): RequestTreeItem => ({
+}: constructorProps<Collection>): SendieTreeItem => ({
   label: data.name,
   collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
   contextValue: "folder",
@@ -42,7 +42,7 @@ const constructCollection = ({
     data: data.children,
     path,
     indexArray,
-  }) as RequestTreeItem[],
+  }) as SendieTreeItem[],
 });
 
 const constructItem = ({
@@ -50,8 +50,8 @@ const constructItem = ({
   indexArray = [],
   path,
 }: constructorProps<RequestItem[] | RequestItem>):
-  | RequestTreeItem
-  | RequestTreeItem[] => {
+  | SendieTreeItem
+  | SendieTreeItem[] => {
   if (Array.isArray(data)) {
     return data.map((x, index) => {
       const childIndex = Array.from(indexArray);
@@ -60,7 +60,7 @@ const constructItem = ({
         data: x,
         indexArray: childIndex,
         path,
-      }) as RequestTreeItem;
+      }) as SendieTreeItem;
     });
   }
   switch (data.type) {
@@ -76,7 +76,7 @@ const constructItem = ({
 
 const parseRequestFile = (
   requestFilePath: string
-): RequestTreeItem | RequestTreeItem[] => {
+): SendieTreeItem | SendieTreeItem[] => {
   const data = fs.readFileSync(requestFilePath).toString();
   if (path.extname(requestFilePath) === ".json") {
     const parsedData = JSON.parse(data);
@@ -92,12 +92,11 @@ const splitFilePath = (filePath: string) => {
   return filePathArray;
 };
 
-const sortResults = (results: RequestTreeItem[]) => {
+const sortResults = (results: SendieTreeItem[]) => {
   results.forEach(
-    (result: RequestTreeItem) =>
-      result?.children && sortResults(result.children)
+    (result: SendieTreeItem) => result?.children && sortResults(result.children)
   );
-  results.sort((a: RequestTreeItem, b: RequestTreeItem) => {
+  results.sort((a: SendieTreeItem, b: SendieTreeItem) => {
     if (a.children && !b.children) return -1;
     if (!a.children && b.children) return 1;
     return (a.label as any) - (b.label as any);
@@ -106,15 +105,15 @@ const sortResults = (results: RequestTreeItem[]) => {
 };
 
 interface LevelType {
-  result: RequestTreeItem[];
-  [name: string]: LevelType | RequestTreeItem[];
+  result: SendieTreeItem[];
+  [name: string]: LevelType | SendieTreeItem[];
 }
 
-export const constructRequestTree = (root: string): RequestTreeItem[] => {
+export const constructRequestTree = (root: string): SendieTreeItem[] => {
   const requestFilePaths: string[] = findRequestFiles(root);
   // This was stolen from StackOverflow and converts filePath arrays to fileTree like objects.
   // It wasn't written with ts in mind, so pls ignore the gross types.
-  let result: RequestTreeItem[] = [];
+  let result: SendieTreeItem[] = [];
   let level: LevelType = { result };
   requestFilePaths.forEach((requestFilePath: string) => {
     splitFilePath(requestFilePath).reduce(
