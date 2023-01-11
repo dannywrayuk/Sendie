@@ -1,5 +1,5 @@
 import * as fs from "fs";
-import fetch, { HeadersInit, RequestInit, Response } from "node-fetch";
+import fetch, { HeadersInit, RequestInit } from "node-fetch";
 import { createResponseDocument } from "./createResponseDocument";
 
 export interface Request {
@@ -60,12 +60,12 @@ const createTitle = (requestData: Request) => {
 
 export const sendRequest = async ({
   path,
-  indexArray,
+  index,
 }: {
   path: string;
-  indexArray: number[];
+  index: number[];
 }) => {
-  const requestData = getRequestData(path, indexArray);
+  const requestData = getRequestData(path, index);
   const title = createTitle(requestData);
   const responseData = await getResponseData(requestData);
   const responseDocument = await createResponseDocument(

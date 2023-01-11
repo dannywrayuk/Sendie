@@ -1,27 +1,20 @@
 import * as vscode from "vscode";
 
-export interface SendieTreeItem extends vscode.TreeItem {
-  children?: SendieTreeItem[];
-  path?: string;
-  indexArray?: number[];
+export interface ExtendedTreeItem extends vscode.TreeItem {
+  children?: ExtendedTreeItem[];
 }
 
-type TreeConstructor = (root: string) => SendieTreeItem[];
-
-export class TreeProvider implements vscode.TreeDataProvider<SendieTreeItem> {
-  private requestTreeItems: SendieTreeItem[] = [];
-  constructor(private workspaceRoot: string, constructTree: TreeConstructor) {
-    this.requestTreeItems = constructTree(this.workspaceRoot);
+export class TreeProvider implements vscode.TreeDataProvider<ExtendedTreeItem> {
+  private requestTreeItems: ExtendedTreeItem[] = [];
+  constructor(constructTree: () => ExtendedTreeItem[]) {
+    this.requestTreeItems = constructTree();
   }
 
-  getTreeItem(element: SendieTreeItem): SendieTreeItem {
+  getTreeItem(element: ExtendedTreeItem): ExtendedTreeItem {
     return element;
   }
 
-  getChildren(element?: SendieTreeItem): Thenable<SendieTreeItem[]> {
-    if (!this.workspaceRoot) {
-      return Promise.resolve([]);
-    }
+  getChildren(element?: ExtendedTreeItem): Thenable<ExtendedTreeItem[]> {
     if (!element) {
       return Promise.resolve(this.requestTreeItems);
     }

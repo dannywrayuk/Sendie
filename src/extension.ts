@@ -5,7 +5,7 @@ import * as vscode from "vscode";
 import { TreeProvider } from "./TreeProvider";
 import { VirtualDocumentProvider } from "./virtualDocumentProvider";
 import { sendRequest } from "./sendRequest";
-import { constructRequestTree } from "./constructRequestTree";
+import { constructTree } from "./constructTree";
 
 export function activate(context: vscode.ExtensionContext) {
   const rootPath =
@@ -22,12 +22,49 @@ export function activate(context: vscode.ExtensionContext) {
 
   vscode.window.registerTreeDataProvider(
     "requests",
-    new TreeProvider(rootPath, constructRequestTree)
+    new TreeProvider(() =>
+      constructTree({
+        fileInfo: {
+          root: rootPath,
+          globString: "**/*.sendie.{js,json}",
+        },
+        itemBuilders: {
+          match: (item) => item?.type || "request",
+          request: (itemInfo, data) => ({
+            ...itemInfo,
+            label: data.name,
+            icon: new vscode.ThemeIcon("mail"),
+          }),
+          collection: (itemInfo, data, callback) => ({
+            ...itemInfo,
+            label: data.name,
+            collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+            contextValue: "folder",
+            children: callback(data.children),
+          }),
+        },
+      })
+    )
   );
 
   vscode.window.registerTreeDataProvider(
     "context",
-    new TreeProvider(rootPath, constructRequestTree)
+    new TreeProvider(() =>
+      constructTree({
+        fileInfo: {
+          root: rootPath,
+          globString: "**/*.sendie-context.{js,json}",
+        },
+        itemBuilders: {
+          match: (item) => "context",
+          context: (itemInfo, data) => ({
+            ...itemInfo,
+            label: data.name,
+            icon: new vscode.ThemeIcon("mail"),
+          }),
+        },
+      })
+    )
   );
 
   let disposable = vscode.commands.registerCommand(
