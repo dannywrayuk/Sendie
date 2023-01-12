@@ -33,7 +33,7 @@ export function activate(context: vscode.ExtensionContext) {
           request: (itemInfo, data) => ({
             ...itemInfo,
             label: data.name,
-            icon: new vscode.ThemeIcon("mail"),
+            iconPath: new vscode.ThemeIcon("mail"),
           }),
           collection: (itemInfo, data, callback) => ({
             ...itemInfo,
@@ -60,7 +60,13 @@ export function activate(context: vscode.ExtensionContext) {
           context: (itemInfo, data) => ({
             ...itemInfo,
             label: data.name,
-            icon: new vscode.ThemeIcon("mail"),
+            command: {
+              command: "vscode.open",
+              arguments: [itemInfo.path],
+            },
+            iconPath: data?.adopted
+              ? new vscode.ThemeIcon("star")
+              : new vscode.ThemeIcon("list-selection"),
           }),
         },
       })
@@ -74,6 +80,14 @@ export function activate(context: vscode.ExtensionContext) {
       virtualDocumentProvider.openDocument(response.document, response.title);
     }
   );
+  context.subscriptions.push(disposable);
 
+  disposable = vscode.commands.registerCommand(
+    "sendie.goToFile",
+    async (args) => {
+      let doc = await vscode.workspace.openTextDocument(args.path);
+      await vscode.window.showTextDocument(doc, { preview: false });
+    }
+  );
   context.subscriptions.push(disposable);
 }

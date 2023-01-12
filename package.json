@@ -18,8 +18,18 @@
     "commands": [
       {
         "command": "sendie.sendRequest",
-        "title": "Send Request",
+        "title": "Send request",
         "icon": "$(run)"
+      },
+      {
+        "command": "sendie.goToFile",
+        "title": "Go to file",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "sendie.adoptContext",
+        "title": "Adopt this context",
+        "icon": "$(check)"
       }
     ],
     "viewsContainers": {
@@ -55,6 +65,16 @@
         {
           "command": "sendie.sendRequest",
           "when": "view == requests && viewItem != folder",
+          "group": "inline"
+        },
+        {
+          "command": "sendie.goToFile",
+          "when": "view == requests && viewItem != folder",
+          "group": "inline"
+        },
+        {
+          "command": "sendie.adoptContext",
+          "when": "view == context && viewItem != folder",
           "group": "inline"
         }
       ]
