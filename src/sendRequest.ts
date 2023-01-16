@@ -1,6 +1,6 @@
 import * as fs from "fs";
-import fetch, { HeadersInit, RequestInit } from "node-fetch";
-import { createResponseDocument } from "./createResponseDocument";
+import fetch, { HeadersInit, RequestInit, Response } from "node-fetch";
+import { createErrorDocument, createResponseDocument } from "./createDocument";
 
 export interface Request {
   type: "request";
@@ -38,7 +38,9 @@ const getRequestData = (path: string, indexArray: number[] = []): Request => {
   return requestData;
 };
 
-const getResponseData = async (requestData: Request) => {
+const getResponseData = async (
+  requestData: Request
+): Promise<Response | { error: string }> => {
   const options: RequestInit = {
     method: requestData.method || "GET",
     headers: requestData.headers,
@@ -47,7 +49,13 @@ const getResponseData = async (requestData: Request) => {
   if (options.method === "GET") {
     options.body = undefined;
   }
-  return await fetch(requestData.address, options);
+  let response;
+  try {
+    response = await fetch(requestData.address, options);
+  } catch (e: any) {
+    return { error: e.stack };
+  }
+  return response;
 };
 
 const createTitle = (requestData: Request) => {
@@ -68,7 +76,7 @@ export const sendRequest = async (
   context?: string
 ) => {
   let requestData = getRequestData(path, index);
-  if (context) {
+  if (context && context !== "") {
     let requestString = JSON.stringify(requestData);
     const currentContext = JSON.parse(fs.readFileSync(context).toString());
     Object.entries(currentContext?.values).forEach(([key, value]) => {
@@ -82,10 +90,15 @@ export const sendRequest = async (
 
   const title = createTitle(requestData);
   const responseData = await getResponseData(requestData);
-  const responseDocument = await createResponseDocument(
-    title,
-    requestData,
-    responseData
-  );
+  let responseDocument;
+  if ("error" in responseData) {
+    responseDocument = createErrorDocument(title, requestData, responseData);
+  } else {
+    responseDocument = await createResponseDocument(
+      title,
+      requestData,
+      responseData
+    );
+  }
   return { document: responseDocument, title };
 };

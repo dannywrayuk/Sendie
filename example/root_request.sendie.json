@@ -1,9 +1,7 @@
 {
-  "type": "request",
-  "category": "test",
   "name": "root_request",
   "method": "POST",
-  "address": "https://jsonplaceholder.typicode.com/posts",
+  "address": "http://jsonplaceholder.typicode.com/posts",
   "headers": {
     "Content-type": "application/json; charset=UTF-8"
   },

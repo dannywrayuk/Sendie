@@ -1,7 +1,7 @@
 "use strict";
 
 import * as vscode from "vscode";
-
+import * as fs from "fs";
 import { TreeProvider } from "./TreeProvider";
 import { VirtualDocumentProvider } from "./virtualDocumentProvider";
 import { sendRequest } from "./sendRequest";
@@ -19,6 +19,11 @@ export function activate(context: vscode.ExtensionContext) {
     "sendie",
     virtualDocumentProvider
   );
+
+  const initialContext = context.workspaceState.get("currentContext");
+  if (initialContext && !fs.existsSync(initialContext as string)) {
+    context.workspaceState.update("currentContext", "");
+  }
 
   const requestTreeProvider = new TreeProvider(() =>
     constructTree({

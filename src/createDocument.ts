@@ -47,3 +47,24 @@ export const createResponseDocument = async (
 
   return YAMLDocument.toString().replace(/body\: \|\-/g, "body:");
 };
+
+export const createErrorDocument = async (
+  title: string,
+  requestData: Request,
+  responseData: { error: string }
+) => {
+  const document = {
+    error: responseData.error,
+    request: {
+      headers: {
+        ...requestData.headers,
+      },
+      body: JSON.stringify(requestData.body, null, 2),
+    },
+  };
+
+  const YAMLDocument = new YAML.Document(document);
+  YAMLDocument.commentBefore = ` Sendie - ${title}`;
+
+  return YAMLDocument.toString().replace(/body\: \|\-/g, "body:");
+};
