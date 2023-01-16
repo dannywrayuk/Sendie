@@ -82,7 +82,6 @@ export const sendRequest = async (
 
   const title = createTitle(requestData);
   const responseData = await getResponseData(requestData);
-
   const responseDocument = await createResponseDocument(
     title,
     requestData,

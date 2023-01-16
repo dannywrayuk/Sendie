@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
         globString: "**/*.sendie.{js,json}",
       },
       itemBuilders: {
-        match: (item) => item?.type || "request",
+        match: (item) => (item?.children ? "collection" : "request"),
         request: (itemInfo, data) => ({
           ...itemInfo,
           label: data.name,

@@ -20,19 +20,16 @@
         "name": {
           "description": "A name for this Sendie Item",
           "type": "string"
-        },
-        "type": {
-          "description": "The Type of Sendie Item",
-          "type": "string",
-          "enum": ["request", "collection"]
         }
       },
-      "required": ["name", "type"],
+      "required": ["name"],
       "allOf": [
         {
           "if": {
-            "properties": {
-              "type": { "const": "request" }
+            "not": {
+              "properties": {
+                "address": { "type": "undefined" }
+              }
             }
           },
           "then": {
@@ -41,12 +38,26 @@
         },
         {
           "if": {
-            "properties": {
-              "type": { "const": "collection" }
+            "not": {
+              "properties": {
+                "children": { "type": "undefined" }
+              }
             }
           },
           "then": {
             "$ref": "#/definitions/collection"
+          }
+        },
+        {
+          "if": {
+            "not": {
+              "properties": {
+                "values": { "type": "undefined" }
+              }
+            }
+          },
+          "then": {
+            "$ref": "#/definitions/context"
           }
         }
       ],
@@ -99,6 +110,15 @@
           "items": {
             "$ref": "#/definitions/item"
           }
+        }
+      }
+    },
+    "context": {
+      "description": "A Sendie Context",
+      "type": "object",
+      "properties": {
+        "values": {
+          "type": "object"
         }
       }
     }

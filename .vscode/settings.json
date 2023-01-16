@@ -13,7 +13,7 @@
 
   "json.schemas": [
     {
-      "fileMatch": ["/*.sendie.json"],
+      "fileMatch": ["/*.sendie.json", "/*.sendie-context.json"],
       "url": "./sendieJsonSchema.json"
     }
   ]

@@ -9,10 +9,7 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [
-    "onView:requests",
-    "onCommand:sendie.sendRequest"
-  ],
+  "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
@@ -120,6 +117,10 @@
     "jsonValidation": [
       {
         "fileMatch": "*.sendie.json",
+        "url": "./sendieJsonSchema.json"
+      },
+      {
+        "fileMatch": "*.sendie-context.json",
         "url": "./sendieJsonSchema.json"
       }
     ]
