@@ -32,9 +32,8 @@ const getFromIndex = (data: RequestTree, indexArray: number[]) =>
   }, data);
 
 const getRequestData = (path: string, indexArray: number[] = []): Request => {
-  const collectionData: RequestTree = JSON.parse(
-    fs.readFileSync(path).toString()
-  );
+  const fileString = fs.readFileSync(path).toString();
+  const collectionData: RequestTree = JSON.parse(fileString);
   const requestData = getFromIndex(collectionData, indexArray) as Request;
   return requestData;
 };
@@ -58,16 +57,32 @@ const createTitle = (requestData: Request) => {
     .replace(/\//g, ".")}`;
 };
 
-export const sendRequest = async ({
-  path,
-  index,
-}: {
-  path: string;
-  index: number[];
-}) => {
-  const requestData = getRequestData(path, index);
+export const sendRequest = async (
+  {
+    path,
+    index,
+  }: {
+    path: string;
+    index: number[];
+  },
+  context?: string
+) => {
+  let requestData = getRequestData(path, index);
+  if (context) {
+    let requestString = JSON.stringify(requestData);
+    const currentContext = JSON.parse(fs.readFileSync(context).toString());
+    Object.entries(currentContext?.values).forEach(([key, value]) => {
+      requestString = requestString.replace(
+        new RegExp(`\\\$\\\{${key}\\\}`, "g"),
+        typeof value === "string" ? value : ""
+      );
+    });
+    requestData = JSON.parse(requestString);
+  }
+
   const title = createTitle(requestData);
   const responseData = await getResponseData(requestData);
+
   const responseDocument = await createResponseDocument(
     title,
     requestData,

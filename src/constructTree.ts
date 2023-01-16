@@ -11,10 +11,10 @@ type ItemInfo = {
   index: number | number[];
 };
 
-type FileInfo = {
+type TreeConstants = {
   root: string;
   globString: string;
-};
+} & any;
 
 type ItemBuilder = (
   itemInfo: ItemInfo,
@@ -23,14 +23,14 @@ type ItemBuilder = (
 ) => any;
 
 type ConstructTreeProps = {
-  fileInfo: FileInfo;
+  treeConstants: TreeConstants;
   itemBuilders?: {
     match: (item: any) => string;
     [id: string]: ItemBuilder | ((item: any) => string);
   };
 };
 
-const findFiles = ({ root, globString }: FileInfo) =>
+const findFiles = ({ root, globString }: TreeConstants) =>
   glob
     .sync(path.join(root, globString), { ignore })
     .map((file) => path.relative(root, file));
@@ -73,10 +73,10 @@ const defaultItemBuilders = {
 };
 
 export const constructTree = ({
-  fileInfo,
+  treeConstants,
   itemBuilders = defaultItemBuilders,
 }: ConstructTreeProps) => {
-  const filePaths: string[] = findFiles(fileInfo);
+  const filePaths: string[] = findFiles(treeConstants);
 
   const parseItems: any = (
     items: any[],
@@ -88,21 +88,27 @@ export const constructTree = ({
       const childIndex = ([] as number[])
         .concat(parentIndex || [])
         .concat(index);
+
       return itemBuilders[type]?.(
         { path: filePath, index: childIndex },
-        data,
+        { ...data, treeConstants },
         (childItems: any[]) => parseItems(childItems, filePath, childIndex)
       );
     });
 
   const parseFile = (filePath: string) => {
-    const data = fs.readFileSync(path.join(fileInfo.root, filePath)).toString();
+    const data = fs
+      .readFileSync(path.join(treeConstants.root, filePath))
+      .toString();
     let parsedData = [];
     if (path.extname(filePath) === ".json") {
       parsedData = JSON.parse(data);
     }
     parsedData = [].concat(parsedData);
-    parsedData = parseItems(parsedData, path.join(fileInfo.root, filePath));
+    parsedData = parseItems(
+      parsedData,
+      path.join(treeConstants.root, filePath)
+    );
     return parsedData;
   };
 

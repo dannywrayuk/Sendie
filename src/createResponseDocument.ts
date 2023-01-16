@@ -18,12 +18,10 @@ export const createResponseDocument = async (
   requestData: Request,
   responseData: Response
 ) => {
-  let responseBody;
+  let responseBody = await responseData.text();
   try {
-    responseBody = JSON.stringify(await responseData.json(), null, 2);
-  } catch (e) {
-    responseBody = await responseData.text();
-  }
+    responseBody = JSON.stringify(JSON.parse(responseBody), null, 2);
+  } catch (e) {}
 
   const document = {
     general: {

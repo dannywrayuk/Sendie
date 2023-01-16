@@ -20,74 +20,86 @@ export function activate(context: vscode.ExtensionContext) {
     virtualDocumentProvider
   );
 
-  vscode.window.registerTreeDataProvider(
-    "requests",
-    new TreeProvider(() =>
-      constructTree({
-        fileInfo: {
-          root: rootPath,
-          globString: "**/*.sendie.{js,json}",
-        },
-        itemBuilders: {
-          match: (item) => item?.type || "request",
-          request: (itemInfo, data) => ({
-            ...itemInfo,
-            label: data.name,
-            iconPath: new vscode.ThemeIcon("mail"),
-          }),
-          collection: (itemInfo, data, callback) => ({
-            ...itemInfo,
-            label: data.name,
-            collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-            contextValue: "folder",
-            children: callback(data.children),
-          }),
-        },
-      })
-    )
+  const requestTreeProvider = new TreeProvider(() =>
+    constructTree({
+      treeConstants: {
+        root: rootPath,
+        globString: "**/*.sendie.{js,json}",
+      },
+      itemBuilders: {
+        match: (item) => item?.type || "request",
+        request: (itemInfo, data) => ({
+          ...itemInfo,
+          label: data.name,
+          iconPath: new vscode.ThemeIcon("mail"),
+        }),
+        collection: (itemInfo, data, callback) => ({
+          ...itemInfo,
+          label: data.name,
+          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
+          contextValue: "folder",
+          children: callback(data.children),
+        }),
+      },
+    })
   );
 
-  vscode.window.registerTreeDataProvider(
-    "context",
-    new TreeProvider(() =>
-      constructTree({
-        fileInfo: {
-          root: rootPath,
-          globString: "**/*.sendie-context.{js,json}",
-        },
-        itemBuilders: {
-          match: (item) => "context",
-          context: (itemInfo, data) => ({
-            ...itemInfo,
-            label: data.name,
-            command: {
-              command: "vscode.open",
-              arguments: [itemInfo.path],
-            },
-            iconPath: data?.adopted
+  const contextTreeProvider = new TreeProvider(() =>
+    constructTree({
+      treeConstants: {
+        root: rootPath,
+        globString: "**/*.sendie-context.{js,json}",
+        selected: context.workspaceState.get("currentContext"),
+      },
+      itemBuilders: {
+        match: (item) => "context",
+        context: (itemInfo, data) => ({
+          ...itemInfo,
+          label: data.name,
+          command: {
+            command: "vscode.open",
+            arguments: [itemInfo.path],
+          },
+          iconPath:
+            itemInfo?.path === data.treeConstants?.selected
               ? new vscode.ThemeIcon("star")
               : new vscode.ThemeIcon("list-selection"),
-          }),
-        },
-      })
-    )
+        }),
+      },
+    })
   );
 
-  let disposable = vscode.commands.registerCommand(
-    "sendie.sendRequest",
-    async (args) => {
-      const response = await sendRequest(args);
-      virtualDocumentProvider.openDocument(response.document, response.title);
-    }
-  );
-  context.subscriptions.push(disposable);
+  vscode.window.registerTreeDataProvider("sendie-context", contextTreeProvider);
+  vscode.window.registerTreeDataProvider("sendie-request", requestTreeProvider);
 
-  disposable = vscode.commands.registerCommand(
-    "sendie.goToFile",
-    async (args) => {
-      let doc = await vscode.workspace.openTextDocument(args.path);
-      await vscode.window.showTextDocument(doc, { preview: false });
-    }
+  vscode.commands.registerCommand("sendie.sendRequest", async (args) => {
+    const response = await sendRequest(
+      args,
+      context.workspaceState.get("currentContext")
+    );
+    virtualDocumentProvider.openDocument(response.document, response.title);
+  });
+  vscode.commands.registerCommand("sendie.goToFile", async (args) => {
+    vscode.commands.executeCommand("vscode.open", vscode.Uri.file(args.path));
+  });
+  vscode.commands.registerCommand("sendie.refreshRequest", async () =>
+    requestTreeProvider.refresh()
   );
-  context.subscriptions.push(disposable);
+  vscode.commands.registerCommand("sendie.refreshContext", async () =>
+    contextTreeProvider.refresh()
+  );
+  vscode.commands.registerCommand("sendie.adoptContext", async (args) => {
+    context.workspaceState.update("currentContext", args.path);
+    contextTreeProvider.refresh();
+  });
+  vscode.commands.registerCommand("sendie.openCurrentContext", async () => {
+    const currentContext = context.workspaceState.get("currentContext");
+    if (currentContext) {
+      vscode.commands.executeCommand("sendie.goToFile", {
+        path: currentContext,
+      });
+    } else {
+      vscode.window.showErrorMessage("Context not set");
+    }
+  });
 }

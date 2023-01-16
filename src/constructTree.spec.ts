@@ -2,7 +2,7 @@ import { constructTree } from "./constructTree";
 
 test("test", () => {
   const x = constructTree({
-    fileInfo: { root: "", globString: "**/*.sendie.{js,json}" },
+    treeConstants: { root: "", globString: "**/*.sendie.{js,json}" },
     itemBuilders: {
       match: (item) => item.type,
       request: (itemInfo, data) => ({

@@ -30,6 +30,21 @@
         "command": "sendie.adoptContext",
         "title": "Adopt this context",
         "icon": "$(check)"
+      },
+      {
+        "command": "sendie.openCurrentContext",
+        "title": "Open the current context",
+        "icon": "$(go-to-file)"
+      },
+      {
+        "command": "sendie.refreshRequest",
+        "title": "Refresh request list",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "sendie.refreshContext",
+        "title": "Refresh context list",
+        "icon": "$(refresh)"
       }
     ],
     "viewsContainers": {
@@ -44,16 +59,33 @@
     "views": {
       "sendie": [
         {
-          "id": "requests",
+          "id": "sendie-request",
           "name": "Requests"
         },
         {
-          "id": "context",
+          "id": "sendie-context",
           "name": "Context"
         }
       ]
     },
     "menus": {
+      "view/title": [
+        {
+          "when": "view == sendie-request",
+          "command": "sendie.refreshRequest",
+          "group": "navigation"
+        },
+        {
+          "when": "view == sendie-context",
+          "command": "sendie.refreshContext",
+          "group": "navigation"
+        },
+        {
+          "when": "view == sendie-context",
+          "command": "sendie.openCurrentContext",
+          "group": "navigation"
+        }
+      ],
       "editor/title": [
         {
           "when": "resourceFilename =~ /.*\\.sendie\\.json$/",
@@ -64,17 +96,17 @@
       "view/item/context": [
         {
           "command": "sendie.sendRequest",
-          "when": "view == requests && viewItem != folder",
+          "when": "view == sendie-request && viewItem != folder",
           "group": "inline"
         },
         {
           "command": "sendie.goToFile",
-          "when": "view == requests && viewItem != folder",
+          "when": "view == sendie-request && viewItem != folder",
           "group": "inline"
         },
         {
           "command": "sendie.adoptContext",
-          "when": "view == context && viewItem != folder",
+          "when": "view == sendie-context && viewItem != folder",
           "group": "inline"
         }
       ]
