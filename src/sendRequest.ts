@@ -49,6 +49,9 @@ const getResponseData = async (
   if (options.method === "GET") {
     options.body = undefined;
   }
+  if (typeof requestData?.address !== "string") {
+    return { error: "Address is undefined" };
+  }
   let response;
   try {
     response = await fetch(requestData.address, options);
