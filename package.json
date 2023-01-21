@@ -130,7 +130,8 @@
     "dev": "webpack --watch",
     "lint": "eslint src --ext ts",
     "test": "jest",
-    "test:w": "jest --watch"
+    "test:w": "jest --watch",
+    "version": "echo $npm_package_version"
   },
   "devDependencies": {
     "@types/glob": "^8.0.0",
