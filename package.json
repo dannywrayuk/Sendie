@@ -3,6 +3,8 @@
   "displayName": "sendie",
   "description": "A VSCode Extension for sending network requests",
   "version": "0.0.3",
+  "icon": "images/icon.png",
+  "publisher": "dannywrayuk",
   "engines": {
     "vscode": "^1.73.0"
   },
@@ -152,5 +154,9 @@
     "http-status-codes": "^2.2.0",
     "node-fetch": "^3.3.0",
     "yaml": "^2.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dannywrayuk/sendie.git"
   }
 }
