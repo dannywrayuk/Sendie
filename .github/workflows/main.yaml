@@ -11,16 +11,16 @@ on:
 jobs:
   build-test:
     name: 🛠 Build and Test
-    uses: ./.github/workflows/build-test.yml
+    uses: ./.github/workflows/build-test.yaml
   bump-version:
     name: 📈 Bump Package Version
     if: github.ref == 'refs/heads/master'
     needs: build-test
-    uses: ./.github/workflows/bump-version.yml
+    uses: ./.github/workflows/bump-version.yaml
     secrets: inherit
   publish:
     name: 🚀 Publish
     if: github.ref == 'refs/heads/master'
     needs: bump-version
-    uses: ./.github/workflows/publish.yml
+    uses: ./.github/workflows/publish.yaml
     secrets: inherit
