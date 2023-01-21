@@ -95,7 +95,11 @@ export const sendRequest = async (
   const responseData = await getResponseData(requestData);
   let responseDocument;
   if ("error" in responseData) {
-    responseDocument = createErrorDocument(title, requestData, responseData);
+    responseDocument = await createErrorDocument(
+      title,
+      requestData,
+      responseData
+    );
   } else {
     responseDocument = await createResponseDocument(
       title,
