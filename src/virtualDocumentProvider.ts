@@ -8,10 +8,19 @@ export class VirtualDocumentProvider
     return this.content;
   }
 
-  async openDocument(content: string, title: string) {
+  onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
+  onDidChange = this.onDidChangeEmitter.event;
+
+  async openDocument(title: string, content: string) {
     this.content = content;
     let uri = vscode.Uri.parse("sendie:" + title);
     let doc = await vscode.workspace.openTextDocument(uri);
     await vscode.window.showTextDocument(doc, { preview: false });
+  }
+
+  updateDocument(title: string, content: string) {
+    this.content = content;
+    let uri = vscode.Uri.parse("sendie:" + title);
+    this.onDidChangeEmitter.fire(uri);
   }
 }

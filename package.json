@@ -16,116 +16,32 @@
   "contributes": {
     "commands": [
       {
-        "command": "sendie.sendRequest",
-        "title": "Send request",
-        "icon": "$(run)"
+        "command": "sendie.openResponseDocument",
+        "title": "Sendie: Open Response Document"
       },
       {
-        "command": "sendie.goToFile",
-        "title": "Go to file",
-        "icon": "$(go-to-file)"
-      },
-      {
-        "command": "sendie.adoptContext",
-        "title": "Adopt this context",
-        "icon": "$(check)"
-      },
-      {
-        "command": "sendie.openCurrentContext",
-        "title": "Open the current context",
-        "icon": "$(go-to-file)"
-      },
-      {
-        "command": "sendie.refreshRequest",
-        "title": "Refresh request list",
-        "icon": "$(refresh)"
-      },
-      {
-        "command": "sendie.refreshContext",
-        "title": "Refresh context list",
-        "icon": "$(refresh)"
+        "command": "sendie.updateResponseDocument",
+        "title": "Sendie: Update Response Document"
       }
     ],
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "sendie",
+          "id": "sendie-sidebar-view",
           "title": "Sendie",
           "icon": "$(mail)"
         }
       ]
     },
     "views": {
-      "sendie": [
+      "sendie-sidebar-view": [
         {
-          "id": "sendie-request",
-          "name": "Requests"
-        },
-        {
-          "id": "sendie-context",
-          "name": "Context"
+          "type": "webview",
+          "id": "sendie-sidebar",
+          "name": "Sendie"
         }
       ]
-    },
-    "menus": {
-      "view/title": [
-        {
-          "when": "view == sendie-request",
-          "command": "sendie.refreshRequest",
-          "group": "navigation"
-        },
-        {
-          "when": "view == sendie-context",
-          "command": "sendie.refreshContext",
-          "group": "navigation"
-        },
-        {
-          "when": "view == sendie-context",
-          "command": "sendie.openCurrentContext",
-          "group": "navigation"
-        }
-      ],
-      "editor/title": [
-        {
-          "when": "resourceFilename =~ /.*\\.sendie\\.json$/",
-          "command": "sendie.sendRequest",
-          "group": "navigation"
-        }
-      ],
-      "view/item/context": [
-        {
-          "command": "sendie.sendRequest",
-          "when": "view == sendie-request && viewItem != folder",
-          "group": "inline"
-        },
-        {
-          "command": "sendie.goToFile",
-          "when": "view == sendie-request && viewItem != folder",
-          "group": "inline"
-        },
-        {
-          "command": "sendie.adoptContext",
-          "when": "view == sendie-context && viewItem != folder",
-          "group": "inline"
-        }
-      ]
-    },
-    "languages": [
-      {
-        "id": "yaml",
-        "firstLine": "# Sendie"
-      }
-    ],
-    "jsonValidation": [
-      {
-        "fileMatch": "*.sendie.json",
-        "url": "./sendieJsonSchema.json"
-      },
-      {
-        "fileMatch": "*.sendie-context.json",
-        "url": "./sendieJsonSchema.json"
-      }
-    ]
+    }
   },
   "scripts": {
     "build": "webpack",

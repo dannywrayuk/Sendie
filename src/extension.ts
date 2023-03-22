@@ -1,11 +1,6 @@
-"use strict";
-
 import * as vscode from "vscode";
-import * as fs from "fs";
-import { TreeProvider } from "./TreeProvider";
+import { SidebarProvider } from "./Sidebar/SidebarProvider";
 import { VirtualDocumentProvider } from "./virtualDocumentProvider";
-import { sendRequest } from "./sendRequest";
-import { constructTree } from "./constructTree";
 
 export function activate(context: vscode.ExtensionContext) {
   const rootPath =
@@ -20,91 +15,22 @@ export function activate(context: vscode.ExtensionContext) {
     virtualDocumentProvider
   );
 
-  const initialContext = context.workspaceState.get("currentContext");
-  if (initialContext && !fs.existsSync(initialContext as string)) {
-    context.workspaceState.update("currentContext", "");
-  }
-
-  const requestTreeProvider = new TreeProvider(() =>
-    constructTree({
-      treeConstants: {
-        root: rootPath,
-        globString: "**/*.sendie.{js,json}",
-      },
-      itemBuilders: {
-        match: (item) => (item?.children ? "collection" : "request"),
-        request: (itemInfo, data) => ({
-          ...itemInfo,
-          label: data.name,
-          iconPath: new vscode.ThemeIcon("mail"),
-        }),
-        collection: (itemInfo, data, callback) => ({
-          ...itemInfo,
-          label: data.name,
-          collapsibleState: vscode.TreeItemCollapsibleState.Collapsed,
-          contextValue: "folder",
-          children: callback(data.children),
-        }),
-      },
-    })
+  const sidebarProvider = new SidebarProvider(context.extensionUri);
+  context.subscriptions.push(
+    vscode.window.registerWebviewViewProvider("sendie-sidebar", sidebarProvider)
   );
 
-  const contextTreeProvider = new TreeProvider(() =>
-    constructTree({
-      treeConstants: {
-        root: rootPath,
-        globString: "**/*.sendie-context.{js,json}",
-        selected: context.workspaceState.get("currentContext"),
-      },
-      itemBuilders: {
-        match: (item) => "context",
-        context: (itemInfo, data) => ({
-          ...itemInfo,
-          label: data.name,
-          command: {
-            command: "vscode.open",
-            arguments: [itemInfo.path],
-          },
-          iconPath:
-            itemInfo?.path === data.treeConstants?.selected
-              ? new vscode.ThemeIcon("star")
-              : new vscode.ThemeIcon("list-selection"),
-        }),
-      },
-    })
-  );
-
-  vscode.window.registerTreeDataProvider("sendie-context", contextTreeProvider);
-  vscode.window.registerTreeDataProvider("sendie-request", requestTreeProvider);
-
-  vscode.commands.registerCommand("sendie.sendRequest", async (args) => {
-    const response = await sendRequest(
-      args,
-      context.workspaceState.get("currentContext")
+  vscode.commands.registerCommand("sendie.openResponseDocument", async () => {
+    virtualDocumentProvider.openDocument(
+      "Sendie Response Document",
+      "\nNothing yet 😴\n"
     );
-    virtualDocumentProvider.openDocument(response.document, response.title);
   });
-  vscode.commands.registerCommand("sendie.goToFile", async (args) => {
-    vscode.commands.executeCommand("vscode.open", vscode.Uri.file(args.path));
-  });
-  vscode.commands.registerCommand("sendie.refreshRequest", async () =>
-    requestTreeProvider.refresh()
-  );
-  vscode.commands.registerCommand("sendie.refreshContext", async () =>
-    contextTreeProvider.refresh()
-  );
-  vscode.commands.registerCommand("sendie.adoptContext", async (args) => {
-    context.workspaceState.update("currentContext", args.path);
-    contextTreeProvider.refresh();
-  });
-  vscode.commands.registerCommand("sendie.openCurrentContext", async () => {
-    const currentContext = context.workspaceState.get("currentContext");
-    if (currentContext) {
-      vscode.commands.executeCommand("sendie.goToFile", {
-        path: currentContext,
-      });
-    } else {
-      vscode.window.showErrorMessage("Context not set");
-    }
+
+  vscode.commands.registerCommand("sendie.updateResponseDocument", async () => {
+    virtualDocumentProvider.updateDocument(
+      "Sendie Response Document",
+      "\nUpdated\n"
+    );
   });
 }
