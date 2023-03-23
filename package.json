@@ -22,6 +22,10 @@
       {
         "command": "sendie.updateResponseDocument",
         "title": "Sendie: Update Response Document"
+      },
+      {
+        "command": "sendie.holdResponseDocument",
+        "title": "Sendie: Hold Response Document"
       }
     ],
     "viewsContainers": {

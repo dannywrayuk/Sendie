@@ -4,6 +4,12 @@ export class VirtualDocumentProvider
   implements vscode.TextDocumentContentProvider
 {
   private content: string = "";
+  uriScheme: string = "";
+
+  constructor(uriScheme: string) {
+    this.uriScheme = uriScheme;
+  }
+
   provideTextDocumentContent(uri: vscode.Uri): string {
     return this.content;
   }
@@ -11,16 +17,18 @@ export class VirtualDocumentProvider
   onDidChangeEmitter = new vscode.EventEmitter<vscode.Uri>();
   onDidChange = this.onDidChangeEmitter.event;
 
-  async openDocument(title: string, content: string) {
-    this.content = content;
-    let uri = vscode.Uri.parse("sendie:" + title);
+  async createDocument(uri: vscode.Uri, content?: string) {
+    this.content = content || "";
     let doc = await vscode.workspace.openTextDocument(uri);
     await vscode.window.showTextDocument(doc, { preview: false });
   }
 
-  updateDocument(title: string, content: string) {
+  updateDocument(uri: vscode.Uri, content: string) {
     this.content = content;
-    let uri = vscode.Uri.parse("sendie:" + title);
     this.onDidChangeEmitter.fire(uri);
+  }
+
+  getUri(title: string) {
+    return vscode.Uri.parse(`${this.uriScheme}:${title}`);
   }
 }
