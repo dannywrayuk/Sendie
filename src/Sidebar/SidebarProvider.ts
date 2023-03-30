@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { getNonce } from "./utils/getNonce";
+import * as crypto from "crypto";
 
 export class SidebarProvider implements vscode.WebviewViewProvider {
   _view?: vscode.WebviewView;
@@ -27,7 +27,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider {
   }
 
   private _getHtmlForWebview(webview: vscode.Webview) {
-    const nonce = getNonce();
+    const nonce = crypto.randomUUID();
     const scriptUri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extensionUri, "src", "Sidebar/test.js")
     );

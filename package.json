@@ -20,14 +20,23 @@
         "title": "Sendie: Open Response Document"
       },
       {
-        "command": "sendie.updateResponseDocument",
-        "title": "Sendie: Update Response Document"
-      },
-      {
         "command": "sendie.holdResponseDocument",
         "title": "Sendie: Hold Response Document"
+      },
+      {
+        "command": "sendie.executeDocument",
+        "title": "Sendie: Execute Document"
       }
     ],
+    "menus": {
+      "editor/title": [
+        {
+          "when": "editorLangId == json",
+          "command": "sendie.executeDocument",
+          "group": "navigation"
+        }
+      ]
+    },
     "viewsContainers": {
       "activitybar": [
         {
@@ -45,7 +54,13 @@
           "name": "Sendie"
         }
       ]
-    }
+    },
+    "languages": [
+      {
+        "id": "yaml",
+        "firstLine": "# Sendie"
+      }
+    ]
   },
   "scripts": {
     "build": "webpack",
