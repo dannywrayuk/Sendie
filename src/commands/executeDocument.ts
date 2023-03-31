@@ -2,10 +2,8 @@ import * as vscode from "vscode";
 import * as fs from "fs";
 import fetch from "node-fetch";
 import { createResponseDocument } from "../utils/createResponseDocument";
-
-const toObject = (data: string) => {
-  return JSON.parse(data);
-};
+import { createErrorDocument } from "../utils/createErrorDocument";
+import { parseSendieDocument } from "../utils/parseSendieDocument";
 
 const parseBody = (body: any) => {
   if (typeof body === "string") return body;
@@ -13,6 +11,8 @@ const parseBody = (body: any) => {
 };
 
 const toNodeFetchRequest = (dataObject: any) => {
+  if (typeof dataObject.address !== "string")
+    throw new Error("Request must have an address.");
   const url: string = dataObject.address;
   const params: object = {
     method: dataObject.method,
@@ -26,16 +26,22 @@ const toNodeFetchRequest = (dataObject: any) => {
 export const executeDocument = async (fileUriString: string) => {
   const path = vscode.Uri.parse(fileUriString).fsPath;
   const data = fs.readFileSync(path).toString();
-  const dataObject = toObject(data);
-  const request = toNodeFetchRequest(dataObject);
-  const response = await fetch(...request);
-  const responseDocument = createResponseDocument(
-    dataObject.name,
-    dataObject,
-    response
-  );
-  vscode.commands.executeCommand(
-    "sendie.openResponseDocument",
-    responseDocument
-  );
+  const dataObject = parseSendieDocument(data);
+  let outputDocument;
+  try {
+    const request = toNodeFetchRequest(dataObject);
+    const response = await fetch(...request);
+    outputDocument = createResponseDocument(
+      dataObject.name,
+      dataObject,
+      response
+    );
+  } catch (error) {
+    outputDocument = createErrorDocument(
+      dataObject.name,
+      dataObject,
+      (error as Error).stack || "Unknown Error."
+    );
+  }
+  vscode.commands.executeCommand("sendie.openResponseDocument", outputDocument);
 };

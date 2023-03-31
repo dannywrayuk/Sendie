@@ -14,6 +14,38 @@
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
+    "configuration": {
+      "title": "Sendie",
+      "properties": {
+        "sendie.defaultResponsePosition": {
+          "title": "Default Response Position",
+          "type": "string",
+          "default": "Beside",
+          "enum": [
+            "Beside",
+            "On Top"
+          ],
+          "description": "The default position that a response document will open relative to the request document."
+        },
+        "sendie.autoFocusResponse": {
+          "title": "Auto Focus Response",
+          "type": "string",
+          "default": "Always",
+          "enum": [
+            "Always",
+            "Never",
+            "Only if Hidden"
+          ],
+          "description": "Focus the response document on the send of a request."
+        },
+        "sendie.alwaysHoldDocuments": {
+          "title": "Always Hold Documents",
+          "type": "boolean",
+          "default": "false",
+          "description": "Hold a copy of the previous response document after every new request."
+        }
+      }
+    },
     "commands": [
       {
         "command": "sendie.openResponseDocument",
@@ -21,11 +53,13 @@
       },
       {
         "command": "sendie.holdResponseDocument",
-        "title": "Sendie: Hold Response Document"
+        "title": "Sendie: Hold Response Document",
+        "icon": "$(new-file)"
       },
       {
         "command": "sendie.executeDocument",
-        "title": "Sendie: Execute Document"
+        "title": "Sendie: Execute Document",
+        "icon": "$(mail)"
       }
     ],
     "menus": {
@@ -34,24 +68,11 @@
           "when": "editorLangId == json",
           "command": "sendie.executeDocument",
           "group": "navigation"
-        }
-      ]
-    },
-    "viewsContainers": {
-      "activitybar": [
+        },
         {
-          "id": "sendie-sidebar-view",
-          "title": "Sendie",
-          "icon": "$(mail)"
-        }
-      ]
-    },
-    "views": {
-      "sendie-sidebar-view": [
-        {
-          "type": "webview",
-          "id": "sendie-sidebar",
-          "name": "Sendie"
+          "when": "resource == 'sendie:Sendie%20Response'",
+          "command": "sendie.holdResponseDocument",
+          "group": "navigation"
         }
       ]
     },
@@ -66,12 +87,11 @@
     "build": "webpack",
     "dev": "webpack --watch",
     "lint": "eslint src --ext ts",
-    "test": "jest",
+    "test": "jest --passWithNoTests",
     "test:w": "jest --watch",
     "version": "echo $npm_package_version"
   },
   "devDependencies": {
-    "@types/glob": "^8.0.0",
     "@types/jest": "^29.2.2",
     "@types/vscode": "^1.73.0",
     "@typescript-eslint/eslint-plugin": "^5.31.0",
@@ -85,7 +105,6 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
-    "glob": "^8.0.3",
     "http-status-codes": "^2.2.0",
     "node-fetch": "^3.3.0",
     "yaml": "^2.2.1"

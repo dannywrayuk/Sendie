@@ -1,17 +1,12 @@
 import * as vscode from "vscode";
-import * as crypto from "crypto";
-import { SidebarProvider } from "./Sidebar/SidebarProvider";
 import { VirtualDocumentProvider } from "./virtualDocumentProvider";
 import { executeDocument } from "./commands/executeDocument";
 import { openCurrentContext } from "./commands/openCurrentContext";
 import { findFileInTabs } from "./utils/findFileInTabs";
+import { isDocumentVisible } from "./utils/isDocumentVisible";
 
 export function activate(context: vscode.ExtensionContext) {
-  const rootPath =
-    vscode.workspace.workspaceFolders &&
-    vscode.workspace.workspaceFolders.length > 0
-      ? vscode.workspace.workspaceFolders[0].uri.fsPath
-      : "";
+  const config = vscode.workspace.getConfiguration("sendie");
 
   const virtualDocumentProvider = new VirtualDocumentProvider("sendie");
   const responseDocumentTitle = "Sendie Response";
@@ -23,20 +18,25 @@ export function activate(context: vscode.ExtensionContext) {
     virtualDocumentProvider
   );
 
-  const sidebarProvider = new SidebarProvider(context.extensionUri);
-  context.subscriptions.push(
-    vscode.window.registerWebviewViewProvider("sendie-sidebar", sidebarProvider)
-  );
-
   // Commands
   vscode.commands.registerCommand(
     "sendie.openResponseDocument",
     async (data) => {
+      if (config.alwaysHoldDocuments === "true") {
+        vscode.commands.executeCommand("sendie.holdResponseDocument", data);
+      }
+
       const options = {
-        viewColumn: vscode.ViewColumn.Beside,
-        // make this optional, focus on request send. update only if visible?
-        updateOnly: true,
+        viewColumn:
+          config.defaultResponsePosition === "On Top"
+            ? vscode.ViewColumn.Active
+            : vscode.ViewColumn.Beside,
+        updateOnly: config.autoFocusResponse === "Never",
       };
+
+      if (config.autoFocusResponse === "Only if Hidden") {
+        options.updateOnly = isDocumentVisible(responseDocumentUri);
+      }
 
       const responseDocumentTabs = findFileInTabs(responseDocumentUri);
       if (responseDocumentTabs.length === 0) {
@@ -57,7 +57,7 @@ export function activate(context: vscode.ExtensionContext) {
   vscode.commands.registerCommand("sendie.holdResponseDocument", async () => {
     virtualDocumentProvider.createDocument(
       virtualDocumentProvider.getUri(
-        responseDocumentTitle + " " + crypto.randomUUID()
+        `${responseDocumentTitle}: ${new Date().toLocaleTimeString()}`
       ),
       (await vscode.workspace.openTextDocument(responseDocumentUri)).getText()
     );
