@@ -60,6 +60,10 @@
         "command": "sendie.executeDocument",
         "title": "Sendie: Execute Document",
         "icon": "$(mail)"
+      },
+      {
+        "command": "sendie.createSendieRequest",
+        "title": "Sendie: Create Sendie Request"
       }
     ],
     "menus": {
@@ -80,6 +84,12 @@
       {
         "id": "yaml",
         "firstLine": "# Sendie"
+      }
+    ],
+    "jsonValidation": [
+      {
+        "fileMatch": "*.sendie.json",
+        "url": "./schema/sendie.json"
       }
     ]
   },

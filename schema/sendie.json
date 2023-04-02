@@ -1,0 +1,44 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "Validation for the Sendie request format.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "A name to identify this request"
+    },
+    "address": {
+      "description": "The address to send this request",
+      "type": "string"
+    },
+    "method": {
+      "description": "The HTTP method to use",
+      "type": "string",
+      "enum": [
+        "DELETE",
+        "GET",
+        "HEAD",
+        "OPTIONS",
+        "POST",
+        "PUT",
+        "delete",
+        "get",
+        "head",
+        "options",
+        "post",
+        "put"
+      ]
+    },
+    "headers": {
+      "type": "object",
+      "description": "HTTP headers to be sent along with this request",
+      "properties": {},
+      "additionalProperties": true
+    },
+    "body": {
+      "description": "The request body",
+      "type": ["string", "object"]
+    }
+  },
+  "additionalProperties": false
+}

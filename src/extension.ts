@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import { VirtualDocumentProvider } from "./virtualDocumentProvider";
 import { executeDocument } from "./commands/executeDocument";
 import { openCurrentContext } from "./commands/openCurrentContext";
+import { createSendieRequest } from "./commands/createSendieRequest";
 import { findFileInTabs } from "./utils/findFileInTabs";
 import { isDocumentVisible } from "./utils/isDocumentVisible";
 
@@ -63,6 +64,10 @@ export function activate(context: vscode.ExtensionContext) {
     );
   });
 
+  vscode.commands.registerCommand(
+    "sendie.createSendieRequest",
+    createSendieRequest
+  );
   vscode.commands.registerCommand("sendie.executeDocument", executeDocument);
   vscode.commands.registerCommand(
     "sendie.openCurrentContext",
