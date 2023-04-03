@@ -5,10 +5,12 @@ import { openCurrentContext } from "./commands/openCurrentContext";
 import { createSendieRequest } from "./commands/createSendieRequest";
 import { findFileInTabs } from "./utils/findFileInTabs";
 import { isDocumentVisible } from "./utils/isDocumentVisible";
+import { extensionContext } from "./utils/extensionContext";
+import { workspaceStateKeys } from "./constants";
 
 export function activate(context: vscode.ExtensionContext) {
+  extensionContext.setContext(context);
   const config = vscode.workspace.getConfiguration("sendie");
-
   const virtualDocumentProvider = new VirtualDocumentProvider("sendie");
   const responseDocumentTitle = "Sendie Response";
   const responseDocumentUri = virtualDocumentProvider.getUri(
@@ -68,6 +70,13 @@ export function activate(context: vscode.ExtensionContext) {
     "sendie.createSendieRequest",
     createSendieRequest
   );
+
+  vscode.commands.registerCommand("sendie.setContextPath", () => {
+    extensionContext.workspaceState.update(
+      workspaceStateKeys.currentContext,
+      "hello"
+    );
+  });
   vscode.commands.registerCommand("sendie.executeDocument", executeDocument);
   vscode.commands.registerCommand(
     "sendie.openCurrentContext",

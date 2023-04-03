@@ -64,6 +64,10 @@
       {
         "command": "sendie.createSendieRequest",
         "title": "Sendie: Create Sendie Request"
+      },
+      {
+        "command": "sendie.setContextPath",
+        "title": "Sendie: Set Context Path"
       }
     ],
     "menus": {

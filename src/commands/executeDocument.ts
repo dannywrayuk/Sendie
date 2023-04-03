@@ -4,6 +4,8 @@ import fetch from "node-fetch";
 import { createResponseDocument } from "../utils/createResponseDocument";
 import { createErrorDocument } from "../utils/createErrorDocument";
 import { parseSendieDocument } from "../utils/parseSendieDocument";
+import { extensionContext } from "../utils/extensionContext";
+import { workspaceStateKeys } from "../constants";
 
 const parseBody = (body: any) => {
   if (typeof body === "string") return body;
@@ -23,10 +25,20 @@ const toNodeFetchRequest = (dataObject: any) => {
   return request;
 };
 
+const applyContext = (x: any) => {
+  const currentContext = extensionContext.workspaceState.get(
+    workspaceStateKeys.currentContext
+  );
+  // continue here
+  console.log(currentContext);
+  return x;
+};
+
 export const executeDocument = async (fileUriString: string) => {
   const path = vscode.Uri.parse(fileUriString).fsPath;
   const data = fs.readFileSync(path).toString();
-  const dataObject = parseSendieDocument(data);
+  const withContext = applyContext(data);
+  const dataObject = parseSendieDocument(withContext);
   let outputDocument;
   try {
     const request = toNodeFetchRequest(dataObject);
