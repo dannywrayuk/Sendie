@@ -3,7 +3,10 @@ import * as fs from "fs";
 import fetch from "node-fetch";
 import { createResponseDocument } from "../utils/createResponseDocument";
 import { createErrorDocument } from "../utils/createErrorDocument";
-import { parseSendieDocument } from "../utils/parseSendieDocument";
+import {
+  parseSendieContext,
+  parseSendieDocument,
+} from "../utils/parseSendieDocument";
 import { extensionContext } from "../utils/extensionContext";
 import { workspaceStateKeys } from "../constants";
 
@@ -29,8 +32,16 @@ const applyContext = (x: any) => {
   const currentContext = extensionContext.workspaceState.get(
     workspaceStateKeys.currentContext
   );
-  // continue here
-  console.log(currentContext);
+
+  if (!currentContext) return x;
+  try {
+    const data = fs.readFileSync(String(currentContext)).toString();
+    const dataObject = parseSendieContext(data);
+    x = (x as string).replace(
+      /\${(.*?)}/g,
+      (_, group) => dataObject?.values?.[group] || ""
+    );
+  } catch (e) {}
   return x;
 };
 

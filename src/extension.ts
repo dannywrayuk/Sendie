@@ -71,10 +71,10 @@ export function activate(context: vscode.ExtensionContext) {
     createSendieRequest
   );
 
-  vscode.commands.registerCommand("sendie.setContextPath", () => {
+  vscode.commands.registerCommand("sendie.setContextPath", (data) => {
     extensionContext.workspaceState.update(
       workspaceStateKeys.currentContext,
-      "hello"
+      data.fsPath
     );
   });
   vscode.commands.registerCommand("sendie.executeDocument", executeDocument);

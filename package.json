@@ -67,14 +67,20 @@
       },
       {
         "command": "sendie.setContextPath",
-        "title": "Sendie: Set Context Path"
+        "title": "Sendie: Set Context Path",
+        "icon": "$(mail)"
       }
     ],
     "menus": {
       "editor/title": [
         {
-          "when": "editorLangId == json",
+          "when": "resourceFilename =~ /.*\\.sendie\\..*/",
           "command": "sendie.executeDocument",
+          "group": "navigation"
+        },
+        {
+          "when": "resourceFilename =~ /.*\\.sendie-ctx\\..*/",
+          "command": "sendie.setContextPath",
           "group": "navigation"
         },
         {
