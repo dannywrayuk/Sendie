@@ -103,7 +103,11 @@
     "jsonValidation": [
       {
         "fileMatch": "*.sendie.json",
-        "url": "./schema/sendie.json"
+        "url": "./schema/request.json"
+      },
+      {
+        "fileMatch": "*.sendie-ctx.json",
+        "url": "./schema/context.json"
       }
     ]
   },

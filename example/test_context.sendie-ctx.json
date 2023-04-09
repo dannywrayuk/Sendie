@@ -1,6 +1,6 @@
 {
   "name": "Test Context",
   "values": {
-    "hello": "from the context"
+    "hello": "from context"
   }
 }

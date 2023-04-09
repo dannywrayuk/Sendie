@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema",
+  "title": "Validation for the Sendie context format.",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "A name to identify this context"
+    },
+    "values": {
+      "type": "object",
+      "description": "Values to be applied by this context"
+    }
+  },
+  "required": ["values"],
+  "additionalProperties": false
+}
