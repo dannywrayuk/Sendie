@@ -66,9 +66,13 @@
         "title": "Sendie: Create Sendie Request"
       },
       {
-        "command": "sendie.setContextPath",
-        "title": "Sendie: Set Context Path",
+        "command": "sendie.setContext",
+        "title": "Sendie: Set Context",
         "icon": "$(mail)"
+      },
+      {
+        "command": "sendie.openCurrentContext",
+        "title": "Sendie: Open Current Context"
       }
     ],
     "menus": {
@@ -80,7 +84,7 @@
         },
         {
           "when": "resourceFilename =~ /.*\\.sendie-ctx\\..*/",
-          "command": "sendie.setContextPath",
+          "command": "sendie.setContext",
           "group": "navigation"
         },
         {

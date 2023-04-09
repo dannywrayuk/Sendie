@@ -1,5 +1,11 @@
 import * as vscode from "vscode";
 
+export const isDocumentVisible = (documentUri: vscode.Uri) => {
+  return vscode.window.visibleTextEditors.some(
+    (editor) => editor.document.uri.path === documentUri.path
+  );
+};
+
 export const findFileInTabs = (fileUri: vscode.Uri) => {
   const foundTabs: vscode.Tab[] = [];
   vscode.window.tabGroups.all.forEach((tabGroup) => {

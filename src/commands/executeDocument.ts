@@ -1,68 +1,86 @@
 import * as vscode from "vscode";
-import * as fs from "fs";
 import fetch from "node-fetch";
-import { createResponseDocument } from "../utils/createResponseDocument";
-import { createErrorDocument } from "../utils/createErrorDocument";
 import {
-  parseSendieContext,
-  parseSendieDocument,
-} from "../utils/parseSendieDocument";
+  createResponseDocument,
+  createErrorDocument,
+} from "../lib/createResponseDocument";
+import { parseSendieContext, parseSendieDocument } from "../lib/parseFiles";
 import { extensionContext } from "../utils/extensionContext";
 import { workspaceStateKeys } from "../constants";
+import { getFile } from "../utils/fs";
 
 const parseBody = (body: any) => {
   if (typeof body === "string") return body;
   return JSON.stringify(body);
 };
 
-const toNodeFetchRequest = (dataObject: any) => {
-  if (typeof dataObject.address !== "string")
+const toNodeFetchRequest = (requestObject: any) => {
+  if (typeof requestObject.address !== "string")
     throw new Error("Request must have an address.");
-  const url: string = dataObject.address;
+  const url: string = requestObject.address;
   const params: object = {
-    method: dataObject.method,
-    headers: dataObject.headers,
-    body: parseBody(dataObject.body),
+    method: requestObject.method,
+    headers: requestObject.headers,
+    body: parseBody(requestObject.body),
   };
   const request: [string, object] = [url, params];
   return request;
 };
 
-const applyContext = (x: any) => {
-  const currentContext = extensionContext.workspaceState.get(
-    workspaceStateKeys.currentContext
-  );
-
-  if (!currentContext) return x;
-  try {
-    const data = fs.readFileSync(String(currentContext)).toString();
-    const dataObject = parseSendieContext(data);
-    x = (x as string).replace(
-      /\${(.*?)}/g,
-      (_, group) => dataObject?.values?.[group] || ""
+const applyContext = (requestData: string) => {
+  const currentContext: vscode.Uri | undefined =
+    extensionContext.workspaceState.get(workspaceStateKeys.currentContext);
+  if (!currentContext) return requestData;
+  const contextData = getFile(currentContext);
+  if (!contextData) {
+    vscode.window.showErrorMessage(
+      "Error when reading the current context file. Has it been deleted or movied?"
     );
-  } catch (e) {}
-  return x;
+    return requestData;
+  }
+  const contextObject = parseSendieContext(contextData);
+  if (!contextObject || !contextObject.values) {
+    vscode.window.showErrorMessage(
+      "Error when parsing the current context file. Check it's format."
+    );
+    return requestData;
+  }
+  requestData = requestData.replace(
+    /\${(.*?)}/g,
+    (_, group) => contextObject.values?.[group] || ""
+  );
+  return requestData;
 };
 
-export const executeDocument = async (fileUriString: string) => {
-  const path = vscode.Uri.parse(fileUriString).fsPath;
-  const data = fs.readFileSync(path).toString();
+export const executeDocument = async (fileUri: string) => {
+  const data = getFile(vscode.Uri.parse(fileUri));
+  if (!data) {
+    vscode.window.showErrorMessage(
+      "Error when reading the current request file. Has it been deleted or movied?"
+    );
+    return;
+  }
   const withContext = applyContext(data);
-  const dataObject = parseSendieDocument(withContext);
+  const requestObject = parseSendieDocument(withContext);
+  if (!requestObject) {
+    vscode.window.showErrorMessage(
+      "Error when parsing the current request file. Check it's format."
+    );
+    return;
+  }
   let outputDocument;
   try {
-    const request = toNodeFetchRequest(dataObject);
+    const request = toNodeFetchRequest(requestObject);
     const response = await fetch(...request);
     outputDocument = createResponseDocument(
-      dataObject.name,
-      dataObject,
+      requestObject.name,
+      requestObject,
       response
     );
   } catch (error) {
     outputDocument = createErrorDocument(
-      dataObject.name,
-      dataObject,
+      requestObject.name,
+      requestObject,
       (error as Error).stack || "Unknown Error."
     );
   }

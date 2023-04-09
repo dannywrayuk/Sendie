@@ -3,59 +3,26 @@ import { VirtualDocumentProvider } from "./virtualDocumentProvider";
 import { executeDocument } from "./commands/executeDocument";
 import { openCurrentContext } from "./commands/openCurrentContext";
 import { createSendieRequest } from "./commands/createSendieRequest";
-import { findFileInTabs } from "./utils/findFileInTabs";
-import { isDocumentVisible } from "./utils/isDocumentVisible";
+
 import { extensionContext } from "./utils/extensionContext";
 import { workspaceStateKeys } from "./constants";
+import { openResponseDocument } from "./commands/openResponseDocument";
+
+export const virtualDocumentProvider = new VirtualDocumentProvider("sendie");
+export const extensionConfig = vscode.workspace.getConfiguration("sendie");
+export const responseDocumentTitle = "Sendie Response";
+export const responseDocumentUri = virtualDocumentProvider.getUri(
+  responseDocumentTitle
+);
 
 export function activate(context: vscode.ExtensionContext) {
   extensionContext.setContext(context);
-  const config = vscode.workspace.getConfiguration("sendie");
-  const virtualDocumentProvider = new VirtualDocumentProvider("sendie");
-  const responseDocumentTitle = "Sendie Response";
-  const responseDocumentUri = virtualDocumentProvider.getUri(
-    responseDocumentTitle
-  );
   vscode.workspace.registerTextDocumentContentProvider(
     virtualDocumentProvider.uriScheme,
     virtualDocumentProvider
   );
 
-  // Commands
-  vscode.commands.registerCommand(
-    "sendie.openResponseDocument",
-    async (data) => {
-      if (config.alwaysHoldDocuments === "true") {
-        vscode.commands.executeCommand("sendie.holdResponseDocument", data);
-      }
-
-      const options = {
-        viewColumn:
-          config.defaultResponsePosition === "On Top"
-            ? vscode.ViewColumn.Active
-            : vscode.ViewColumn.Beside,
-        updateOnly: config.autoFocusResponse === "Never",
-      };
-
-      if (config.autoFocusResponse === "Only if Hidden") {
-        options.updateOnly = isDocumentVisible(responseDocumentUri);
-      }
-
-      const responseDocumentTabs = findFileInTabs(responseDocumentUri);
-      if (responseDocumentTabs.length === 0) {
-        options.updateOnly = false;
-      } else if (responseDocumentTabs.length === 1) {
-        options.viewColumn = responseDocumentTabs[0].group.viewColumn;
-      } else if (responseDocumentTabs.length > 1) {
-        vscode.window.tabGroups.close(responseDocumentTabs);
-      }
-      virtualDocumentProvider.createDocument(
-        responseDocumentUri,
-        data || "\nNothing yet 😴\n",
-        options
-      );
-    }
-  );
+  // Inline Commands
 
   vscode.commands.registerCommand("sendie.holdResponseDocument", async () => {
     virtualDocumentProvider.createDocument(
@@ -66,17 +33,23 @@ export function activate(context: vscode.ExtensionContext) {
     );
   });
 
+  vscode.commands.registerCommand("sendie.setContext", (data) => {
+    extensionContext.workspaceState.update(
+      workspaceStateKeys.currentContext,
+      data
+    );
+  });
+
+  // Commands
+
+  vscode.commands.registerCommand(
+    "sendie.openResponseDocument",
+    openResponseDocument
+  );
   vscode.commands.registerCommand(
     "sendie.createSendieRequest",
     createSendieRequest
   );
-
-  vscode.commands.registerCommand("sendie.setContextPath", (data) => {
-    extensionContext.workspaceState.update(
-      workspaceStateKeys.currentContext,
-      data.fsPath
-    );
-  });
   vscode.commands.registerCommand("sendie.executeDocument", executeDocument);
   vscode.commands.registerCommand(
     "sendie.openCurrentContext",
