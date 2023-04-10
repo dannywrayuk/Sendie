@@ -27,7 +27,7 @@ const toNodeFetchRequest = (requestObject: any) => {
   return request;
 };
 
-const applyContext = (requestData: string) => {
+const applyContext = async (requestData: string) => {
   const currentContext: vscode.Uri | undefined =
     extensionContext.workspaceState.get(workspaceStateKeys.currentContext);
   if (!currentContext) return requestData;
@@ -38,7 +38,7 @@ const applyContext = (requestData: string) => {
     );
     return requestData;
   }
-  const contextObject = parseSendieContext(contextData);
+  const contextObject = await parseSendieContext(contextData);
   if (!contextObject || !contextObject.values) {
     vscode.window.showErrorMessage(
       "Error when parsing the current context file. Check it's format."
@@ -60,8 +60,8 @@ export const executeDocument = async (fileUri: string) => {
     );
     return;
   }
-  const withContext = applyContext(data);
-  const requestObject = parseSendieDocument(withContext);
+  const withContext = await applyContext(data);
+  const requestObject = await parseSendieDocument(withContext);
   if (!requestObject) {
     vscode.window.showErrorMessage(
       "Error when parsing the current request file. Check it's format."
@@ -73,12 +73,14 @@ export const executeDocument = async (fileUri: string) => {
     const request = toNodeFetchRequest(requestObject);
     const response = await fetch(...request);
     outputDocument = createResponseDocument(
+      // @ts-ignore
       requestObject.name,
       requestObject,
       response
     );
   } catch (error) {
     outputDocument = createErrorDocument(
+      // @ts-ignore
       requestObject.name,
       requestObject,
       (error as Error).stack || "Unknown Error."

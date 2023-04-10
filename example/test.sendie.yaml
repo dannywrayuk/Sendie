@@ -1,0 +1,13 @@
+{
+  name: root_request,
+  method: POST,
+  address: http://jsonplaceholder.typicode.com/posts,
+  headers: { "Content-type": "application/json; charset=UTF-8" },
+  body:
+    {
+      "title": "${hello}",
+      "body": "sendie",
+      "userId": 1,
+      "yes": { "world": "yes" },
+    },
+}
