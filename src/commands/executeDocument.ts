@@ -34,7 +34,8 @@ const applyContext = async (requestData: string) => {
   const contextData = getFile(currentContext);
   if (!contextData) {
     vscode.window.showErrorMessage(
-      "Error when reading the current context file. Has it been deleted or movied?"
+      "Error when reading the current context file. Has it been deleted or movied? \n" +
+        currentContext.fsPath
     );
     return requestData;
   }
@@ -52,11 +53,17 @@ const applyContext = async (requestData: string) => {
   return requestData;
 };
 
-export const executeDocument = async (fileUri: string) => {
-  const data = getFile(vscode.Uri.parse(fileUri));
+export const executeDocument = async (inputData: any) => {
+  let fileUri;
+  if (typeof inputData === "string") {
+    fileUri = vscode.Uri.parse(inputData);
+  } else {
+    fileUri = vscode.Uri.parse(inputData.meta.absolutePath);
+  }
+  const data = getFile(fileUri);
   if (!data) {
     vscode.window.showErrorMessage(
-      "Error when reading the current request file. Has it been deleted or movied?"
+      "Error when reading the current request file. Has it been deleted or moved?"
     );
     return;
   }

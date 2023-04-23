@@ -73,9 +73,36 @@
       {
         "command": "sendie.openCurrentContext",
         "title": "Sendie: Open Current Context"
+      },
+      {
+        "command": "sendie.refreshDocuments",
+        "title": "Sendie: Refresh Documents View",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "sendie.refreshFavourites",
+        "title": "Sendie: Refresh Favourites View",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "sendie.openFileUI",
+        "title": "Go to file",
+        "icon": "$(go-to-file)"
       }
     ],
     "menus": {
+      "view/title": [
+        {
+          "when": "view == sendie-documents",
+          "command": "sendie.refreshDocuments",
+          "group": "navigation"
+        },
+        {
+          "when": "view == sendie-favourites",
+          "command": "sendie.refreshFavourites",
+          "group": "navigation"
+        }
+      ],
       "editor/title": [
         {
           "when": "resourceFilename =~ /.*\\.sendie\\..*/",
@@ -91,6 +118,48 @@
           "when": "resource == 'sendie:Sendie%20Response'",
           "command": "sendie.holdResponseDocument",
           "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "sendie.openFileUI",
+          "when": "view == sendie-documents && (viewItem == request || viewItem == context)",
+          "group": "inline@1"
+        },
+        {
+          "command": "sendie.setContext",
+          "when": "view == sendie-documents && viewItem == context",
+          "group": "inline"
+        },
+        {
+          "command": "sendie.executeDocument",
+          "when": "view == sendie-documents && viewItem == request",
+          "group": "inline"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "sendie",
+          "title": "Sendie",
+          "icon": "$(mail)"
+        }
+      ]
+    },
+    "views": {
+      "sendie": [
+        {
+          "id": "sendie-documents",
+          "name": "Workspace"
+        },
+        {
+          "id": "sendie-favourites",
+          "name": "Favourites"
+        },
+        {
+          "id": "sendie-quick-actions",
+          "name": "Quick Actions"
         }
       ]
     },
@@ -132,6 +201,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "glob": "^10.1.0",
     "http-status-codes": "^2.2.0",
     "node-fetch": "^3.3.0",
     "typescript": "^4.9.5",

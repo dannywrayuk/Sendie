@@ -1,7 +1,7 @@
 import * as x from "crypto";
 
 export default {
-  name: "hello",
+  name: "root_request_js",
   method: "POST",
   address: "http://jsonplaceholder.typicode.com/posts",
   headers: { "Content-type": "application/json; charset=UTF-8" },

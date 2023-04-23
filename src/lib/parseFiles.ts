@@ -2,6 +2,7 @@ import * as YAML from "yaml";
 import * as ts from "typescript";
 
 const parse = async (source: string) => {
+  if (!source) return;
   try {
     return JSON.parse(source);
   } catch (e) {}
@@ -21,7 +22,7 @@ const parse = async (source: string) => {
       "exports",
       jsSource + ";return exports.default;"
     );
-    return f(
+    return await f(
       (module: string) => {
         try {
           return eval(`require("${module}")`);
@@ -35,6 +36,7 @@ const parse = async (source: string) => {
   } catch (e) {
     console.log(e);
   }
+
   return;
 };
 
